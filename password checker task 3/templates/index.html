@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Password Complexity Checker</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="console-box">
+        <h1>Password Complexity Checker</h1>
+        <input type="password" id="password" placeholder="Enter password here">
+        <button onclick="checkPassword()">Check</button>
+        <div id="verdict"></div>
+        <div class="progress-bar-container">
+            <div id="strength-bar"></div>
+        </div>
+        <ul id="suggestions"></ul>
+    </div>
+
+    <script>
+        function checkPassword() {
+            const password = document.getElementById("password").value;
+
+            fetch("/check", {
+                method: "POST",
+                body: JSON.stringify({ password: password }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("verdict").textContent = "Strength: " + data.verdict;
+                let bar = document.getElementById("strength-bar");
+                bar.style.width = (data.strength * 20) + "%";
+                bar.className = data.verdict.toLowerCase();
+
+                let suggestionBox = document.getElementById("suggestions");
+                suggestionBox.innerHTML = "";
+                data.suggestions.forEach(suggestion => {
+                    let li = document.createElement("li");
+                    li.textContent = suggestion;
+                    suggestionBox.appendChild(li);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
